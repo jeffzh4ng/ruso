@@ -1,0 +1,15 @@
+[package]
+name = "rust-os"
+version = "0.1.0"
+authors = ["Jeff Zhang <zhang.jeffreyd@gmail.com>"]
+edition = "2018"
+
+[profile.dev]
+panic = "abort" # disable stack unwinding on panic, unwinding depends on OS specific libs which we won't have as the binary produced will target bare metal
+
+[profile.release]
+panic = "abort" # disable stack unwinding on panic, unwinding depends on OS specific libs which we won't have as the binary produced will target bare metal
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
