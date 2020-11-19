@@ -4,19 +4,22 @@ version = "0.1.0"
 authors = ["Jeff Zhang <zhang.jeffreyd@gmail.com>"]
 edition = "2018"
 
-[profile.dev]
-panic = "abort" # disable stack unwinding on panic, unwinding depends on OS specific libs which we won't have as the binary produced will target bare metal
-
-[profile.release]
-panic = "abort" # disable stack unwinding on panic, unwinding depends on OS specific libs which we won't have as the binary produced will target bare metal
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 bootloader = "0.9.8"
 volatile = "0.2.6"
 spin = "0.5.2"
+x86_64 = "0.12.1"
+uart_16550 = "0.2.0"
 
 [dependencies.lazy_static]
 version = "1.0"
 features = ["spin_no_std"]
+
+[package.metadata.bootimage]
+test-args = [
+  "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio",
+  "-display", "none"
+]
+test-success-exit-code = 33 # (0x10 >> 1) | 1 = 0x101 = 33
