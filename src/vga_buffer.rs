@@ -1,7 +1,7 @@
 use volatile::Volatile;
 use core::fmt;
 use lazy_static::lazy_static;
-use spin::Mutex;
+use spin::Mutex; // using basic spin locks because our kernel has no support for yielding/threads
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,7 +62,7 @@ impl Writer {
       match byte {
         // printable ascii byte or newline
         0x20..=0x7e | b'\n' => self.write_byte(byte),
-        // not part of printable ASCII range
+        // not part of printable ASCII range (UTF-8 out of range)
         _ => self.write_byte(0xfe)
       }
     }
