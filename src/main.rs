@@ -12,6 +12,10 @@ use rust_os::println;
 #[no_mangle] // don't mangle the name of this fn, it needs to be named _start
 pub extern "C" fn _start() -> ! {
     println!("Hello world");
+
+    rust_os::init();
+
+    x86_64::instructions::interrupts::int3();
     
     #[cfg(test)]
     test_main();
