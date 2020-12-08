@@ -12,6 +12,13 @@ pub mod gdt;
 
 use core::panic::PanicInfo;
 
+pub fn init() {
+    gdt::init();
+    interrupts::init_idt();
+    unsafe { interrupts::PICS.lock().initialize() }; // unsafe bc there can be undefined behavior if the PIC is misconfigured
+    x86_64::instructions::interrupts::enable();
+}
+
 pub trait Testable {
     fn run (&self) -> ();
 }
@@ -72,9 +79,4 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32); // port-mapped I/O
     }
-}
-
-pub fn init() {
-    gdt::init();
-    interrupts::init_idt();
 }
