@@ -20,7 +20,7 @@ pub extern "C" fn _start() -> ! {
 
     println!("Does not crash");
     
-    loop {}
+    rust_os::hlt_loop();
 }
 
 // provide panic implementation now that standard libary is gone
@@ -28,7 +28,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    rust_os::hlt_loop();
 }
 
 #[cfg(test)]
