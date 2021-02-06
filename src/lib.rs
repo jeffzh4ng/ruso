@@ -5,10 +5,11 @@
 #![reexport_test_harness_main = "test_main"]
 #![feature(abi_x86_interrupt)]
 
+pub mod gdt;
+pub mod interrupts;
+pub mod memory;
 pub mod serial;
 pub mod vga_buffer;
-pub mod interrupts;
-pub mod gdt;
 
 use core::panic::PanicInfo;
 
@@ -20,7 +21,7 @@ pub fn init() {
 }
 
 pub trait Testable {
-    fn run (&self) -> ();
+    fn run(&self) -> ();
 }
 
 impl<T> Testable for T
@@ -52,8 +53,14 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 }
 
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+use bootloader::{entry_point, BootInfo};
+
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
+// #[no_mangle]
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
     hlt_loop();
@@ -69,7 +76,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[repr(u32)] // each variant represented with 32 bit integer
 pub enum QemuExitCode {
     Success = 0x10, // exit codes are arbitrary, as long as they don't clash with default QEMU exit codes
-    Failed = 0x11
+    Failed = 0x11,
 }
 
 pub fn exit_qemu(exit_code: QemuExitCode) {

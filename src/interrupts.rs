@@ -62,11 +62,14 @@ extern "x86-interrupt" fn double_fault_handler(
 }
 
 use crate::hlt_loop;
-extern "x86-interrupt" fn page_fault_handler(stack_frame: &mut InterruptStackFrame, error_code: PageFaultErrorCode) {
+extern "x86-interrupt" fn page_fault_handler(
+    stack_frame: &mut InterruptStackFrame,
+    error_code: PageFaultErrorCode,
+) {
     use x86_64::registers::control::Cr2;
 
     println!("EXCEPTION: PAGE FAULT");
-    println!("Accessed Address: {:?}", Cr2::read());
+    println!("Accessed Address: {:?}", Cr2::read()); // The Cr2 register is automatically set by the CPU on a page fault and contains the accessed virtual address that caused the fault.
     println!("Error code: {:?}", error_code);
     println!("{:#?}", stack_frame);
     hlt_loop();
@@ -82,7 +85,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: &mut InterruptSt
 }
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut InterruptStackFrame) {
-    use pc_keyboard::{layouts, HandleControl, Keyboard, ScancodeSet1, DecodedKey};
+    use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
     use spin::Mutex;
     use x86_64::instructions::port::Port;
 
@@ -97,12 +100,12 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut Interrup
 
     let scancode: u8 = unsafe { port.read() };
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
-      if let Some(key) = keyboard.process_keyevent(key_event) {
-        match key {
-          DecodedKey::Unicode(character) => print!("{}", character),
-          DecodedKey::RawKey(key) => print!("{:?}", key)
+        if let Some(key) = keyboard.process_keyevent(key_event) {
+            match key {
+                DecodedKey::Unicode(character) => print!("{}", character),
+                DecodedKey::RawKey(key) => print!("{:?}", key),
+            }
         }
-      }
     }
 
     unsafe {
